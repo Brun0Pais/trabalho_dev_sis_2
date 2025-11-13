@@ -13,6 +13,8 @@ class Estoque extends Model
     protected $fillable = [
         'produto_id',
         'quantidadeDisponivel',
+        'dataEntrada',
+        'datasaida',
     ];
 
     public function produto(): BelongsTo

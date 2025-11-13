@@ -14,16 +14,30 @@ class Pedido extends Model
         'usuario_id',
         'formaPagamento',
         'dataPedido',
+        'dataEntrega',
+        'localEntrega',
+        'statusPagamento',
         'subtotal',
     ];
 
     protected $casts = [
         'dataPedido' => 'datetime',
+        'dataEntrega' => 'date',
         'subtotal' => 'decimal:2',
     ];
 
     public function usuario(): BelongsTo
     {
         return $this->belongsTo(Usuario::class);
+    }
+
+    public function itensPedido()
+    {
+        return $this->hasMany(ItemPedido::class);
+    }
+
+    public function calcularTotal()
+    {
+        return $this->itensPedido->sum('subtotal');
     }
 }

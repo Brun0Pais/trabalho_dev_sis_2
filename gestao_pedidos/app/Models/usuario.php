@@ -14,6 +14,7 @@ class Usuario extends Authenticatable
         'email',
         'cpf',
         'senha',
+        'telefone',
         'tipo',
     ];
 
@@ -24,5 +25,20 @@ class Usuario extends Authenticatable
     public function getAuthPassword()
     {
         return $this->senha;
+    }
+
+    public function pedidos()
+    {
+        return $this->hasMany(Pedido::class);
+    }
+
+    public function isAdmin()
+    {
+        return $this->tipo === 'admin';
+    }
+
+    public function isCliente()
+    {
+        return $this->tipo === 'cliente';
     }
 }

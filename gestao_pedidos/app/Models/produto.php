@@ -14,5 +14,16 @@ class Produto extends Model
         'descricao',
         'ingredientesPrincipais',
         'precoUnidade',
+        'imagem',
     ];
+
+    public function estoque()
+    {
+        return $this->hasOne(Estoque::class);
+    }
+
+    public function itensPedido()
+    {
+        return $this->hasMany(ItemPedido::class);
+    }
 }

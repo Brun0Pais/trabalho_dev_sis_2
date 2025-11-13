@@ -2,64 +2,79 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\estoque;
+use App\Models\Estoque;
+use App\Models\Produto;
 use Illuminate\Http\Request;
 
 class EstoqueController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $query = Estoque::with('produto');
+
+        if ($request->has('search') && $request->search) {
+            $query->whereHas('produto', function($q) use ($request) {
+                $q->where('nome', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        $estoques = $query->orderBy('created_at', 'desc')->paginate(15);
+
+        return view('estoques.index', compact('estoques'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        $produtos = Produto::doesntHave('estoque')->orderBy('nome')->get();
+        return view('estoques.create', compact('produtos'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'produto_id' => 'required|exists:produtos,id|unique:estoques,produto_id',
+            'quantidadeDisponivel' => 'required|integer|min:0',
+            'dataEntrada' => 'nullable|date',
+            'datasaida' => 'nullable|date',
+        ]);
+
+        Estoque::create($validated);
+
+        return redirect()->route('estoques.index')
+            ->with('success', 'Estoque criado com sucesso!');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(estoque $estoque)
+    public function show(Estoque $estoque)
     {
-        //
+        $estoque->load('produto');
+        return view('estoques.show', compact('estoque'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(estoque $estoque)
+    public function edit(Estoque $estoque)
     {
-        //
+        $estoque->load('produto');
+        return view('estoques.edit', compact('estoque'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, estoque $estoque)
+    public function update(Request $request, Estoque $estoque)
     {
-        //
+        $validated = $request->validate([
+            'quantidadeDisponivel' => 'required|integer|min:0',
+            'dataEntrada' => 'nullable|date',
+            'datasaida' => 'nullable|date',
+        ]);
+
+        $estoque->update($validated);
+
+        return redirect()->route('estoques.index')
+            ->with('success', 'Estoque atualizado com sucesso!');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(estoque $estoque)
+    public function destroy(Estoque $estoque)
     {
-        //
+        $estoque->delete();
+
+        return redirect()->route('estoques.index')
+            ->with('success', 'Estoque excluído com sucesso!');
     }
 }
