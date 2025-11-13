@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Gestão de Pedidos</title>
+    <title>Login - Espaço Caseiro</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <style>
@@ -30,7 +30,7 @@
                     <div class="card-body p-5">
                         <div class="text-center mb-4">
                             <i class="bi bi-shop" style="font-size: 3rem; color: #667eea;"></i>
-                            <h2 class="mt-3 mb-1">Gestão de Pedidos</h2>
+                            <h2 class="mt-3 mb-1">Espaço Caseiro</h2>
                             <p class="text-muted">Sistema de Salgados</p>
                         </div>
 
@@ -76,7 +76,10 @@
                         </form>
 
                         <div class="text-center">
-                            <small class="text-muted">Sistema de Gestão de Pedidos</small>
+                            <p class="mb-0">
+                                Não tem uma conta? 
+                                <a href="{{ route('register') }}" class="text-decoration-none">Cadastre-se aqui</a>
+                            </p>
                         </div>
                     </div>
                 </div>
