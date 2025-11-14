@@ -157,7 +157,7 @@
 </div>
 
 <div class="d-flex justify-content-center">
-    {{ $produtos->links() }}
+    {{ $produtos->links('vendor.pagination.bootstrap-5-no-arrows') }}
 </div>
 @endsection
 
