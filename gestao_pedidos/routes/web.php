@@ -9,12 +9,16 @@ use App\Http\Controllers\EstoqueController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CatalogoController;
 use App\Http\Controllers\RelatorioController;
+use App\Http\Controllers\FuncionarioController;
+use App\Http\Controllers\CategoriaController;
+use App\Http\Controllers\UserController;
 
 Route::get('/', function () {
     return redirect('/login');
 });
 
 // Rotas de Autenticação
+Route::get('/users', [UserController::class, 'index'])->name('users.index');
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
@@ -44,7 +48,7 @@ Route::middleware(['auth'])->group(function () {
     // CRUD Usuários - Rotas públicas (edit e update podem ser acessadas pelo próprio usuário)
     Route::get('/usuarios/{usuario}/edit', [UsuarioController::class, 'edit'])->name('usuarios.edit');
     Route::put('/usuarios/{usuario}', [UsuarioController::class, 'update'])->name('usuarios.update');
-    
+
     // CRUD Usuários - Rotas administrativas
     Route::middleware('admin')->group(function () {
         Route::get('/usuarios', [UsuarioController::class, 'index'])->name('usuarios.index');
@@ -56,7 +60,7 @@ Route::middleware(['auth'])->group(function () {
 
     // CRUD Produtos - Rotas públicas
     Route::get('/produtos', [ProdutoController::class, 'index'])->name('produtos.index');
-    
+
     // CRUD Produtos - Rotas administrativas (rotas específicas primeiro para evitar conflito)
     Route::middleware('admin')->group(function () {
         Route::get('/produtos/create', [ProdutoController::class, 'create'])->name('produtos.create');
@@ -65,7 +69,7 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/produtos/{produto}', [ProdutoController::class, 'update'])->name('produtos.update');
         Route::delete('/produtos/{produto}', [ProdutoController::class, 'destroy'])->name('produtos.destroy');
     });
-    
+
     // Rota pública de visualização (deve vir depois das rotas específicas)
     Route::get('/produtos/{produto}', [ProdutoController::class, 'show'])->name('produtos.show');
 
@@ -74,13 +78,16 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/pedidos/create', [PedidoController::class, 'create'])->name('pedidos.create');
     Route::post('/pedidos', [PedidoController::class, 'store'])->name('pedidos.store');
     Route::get('/pedidos/{pedido}', [PedidoController::class, 'show'])->name('pedidos.show');
-    
+
     // Rotas administrativas de pedidos
     Route::middleware('admin')->group(function () {
         Route::get('/pedidos', [PedidoController::class, 'index'])->name('pedidos.index');
         Route::get('/pedidos/{pedido}/edit', [PedidoController::class, 'edit'])->name('pedidos.edit');
         Route::put('/pedidos/{pedido}', [PedidoController::class, 'update'])->name('pedidos.update');
         Route::delete('/pedidos/{pedido}', [PedidoController::class, 'destroy'])->name('pedidos.destroy');
+        Route::post('/pedidos/{pedido}/funcionarios', [PedidoController::class, 'associarFuncionario'])->name('pedidos.associar-funcionario');
+        Route::put('/pedidos/{pedido}/funcionarios/{funcionario}', [PedidoController::class, 'atualizarFuncaoFuncionario'])->name('pedidos.atualizar-funcao-funcionario');
+        Route::delete('/pedidos/{pedido}/funcionarios/{funcionario}', [PedidoController::class, 'removerFuncionario'])->name('pedidos.remover-funcionario');
     });
 
     // Relatórios - Apenas admin
@@ -99,5 +106,29 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/estoques/{estoque}/edit', [EstoqueController::class, 'edit'])->name('estoques.edit');
         Route::put('/estoques/{estoque}', [EstoqueController::class, 'update'])->name('estoques.update');
         Route::delete('/estoques/{estoque}', [EstoqueController::class, 'destroy'])->name('estoques.destroy');
+    });
+
+    // CRUD Funcionários - Apenas admin
+    Route::middleware('admin')->group(function () {
+        Route::get('/funcionarios', [FuncionarioController::class, 'index'])->name('funcionarios.index');
+        Route::get('/funcionarios/create', [FuncionarioController::class, 'create'])->name('funcionarios.create');
+        Route::post('/funcionarios', [FuncionarioController::class, 'store'])->name('funcionarios.store');
+        Route::get('/funcionarios/{funcionario}', [FuncionarioController::class, 'show'])->name('funcionarios.show');
+        Route::get('/funcionarios/{funcionario}/edit', [FuncionarioController::class, 'edit'])->name('funcionarios.edit');
+        Route::put('/funcionarios/{funcionario}', [FuncionarioController::class, 'update'])->name('funcionarios.update');
+        Route::delete('/funcionarios/{funcionario}', [FuncionarioController::class, 'destroy'])->name('funcionarios.destroy');
+        Route::post('/funcionarios/{funcionario}/associar-pedidos', [FuncionarioController::class, 'associarPedidos'])->name('funcionarios.associar-pedidos');
+        Route::delete('/funcionarios/{funcionario}/pedidos/{pedido}', [FuncionarioController::class, 'removerPedido'])->name('funcionarios.remover-pedido');
+    });
+
+    // CRUD Categorias - Apenas admin
+    Route::middleware('admin')->group(function () {
+        Route::get('/categorias', [CategoriaController::class, 'index'])->name('categorias.index');
+        Route::get('/categorias/create', [CategoriaController::class, 'create'])->name('categorias.create');
+        Route::post('/categorias', [CategoriaController::class, 'store'])->name('categorias.store');
+        Route::get('/categorias/{categoria}', [CategoriaController::class, 'show'])->name('categorias.show');
+        Route::get('/categorias/{categoria}/edit', [CategoriaController::class, 'edit'])->name('categorias.edit');
+        Route::put('/categorias/{categoria}', [CategoriaController::class, 'update'])->name('categorias.update');
+        Route::delete('/categorias/{categoria}', [CategoriaController::class, 'destroy'])->name('categorias.destroy');
     });
 });

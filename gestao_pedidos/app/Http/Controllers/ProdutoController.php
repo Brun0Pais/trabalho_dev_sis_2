@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Produto;
+use App\Models\Categoria;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -10,21 +11,27 @@ class ProdutoController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Produto::query();
+        $query = Produto::with('categoria');
 
         if ($request->has('search') && $request->search) {
             $query->where('nome', 'like', '%' . $request->search . '%')
                   ->orWhere('descricao', 'like', '%' . $request->search . '%');
         }
 
-        $produtos = $query->orderBy('nome')->paginate(12);
+        if ($request->has('categoria_id') && $request->categoria_id) {
+            $query->where('categoria_id', $request->categoria_id);
+        }
 
-        return view('produtos.index', compact('produtos'));
+        $produtos = $query->orderBy('nome')->paginate(12);
+        $categorias = \App\Models\Categoria::where('ativo', true)->orderBy('nome')->get();
+
+        return view('produtos.index', compact('produtos', 'categorias'));
     }
 
     public function create()
     {
-        return view('produtos.create');
+        $categorias = Categoria::where('ativo', true)->orderBy('nome')->get();
+        return view('produtos.create', compact('categorias'));
     }
 
     public function store(Request $request)
@@ -49,13 +56,14 @@ class ProdutoController extends Controller
 
     public function show(Produto $produto)
     {
-        $produto->load('estoque');
+        $produto->load('estoque', 'categoria');
         return view('produtos.show', compact('produto'));
     }
 
     public function edit(Produto $produto)
     {
-        return view('produtos.edit', compact('produto'));
+        $categorias = Categoria::where('ativo', true)->orderBy('nome')->get();
+        return view('produtos.edit', compact('produto', 'categorias'));
     }
 
     public function update(Request $request, Produto $produto)
@@ -65,6 +73,7 @@ class ProdutoController extends Controller
             'descricao' => 'nullable|string',
             'ingredientesPrincipais' => 'nullable|string|max:255',
             'precoUnidade' => 'required|numeric|min:0',
+            'categoria_id' => 'nullable|exists:categorias,id',
             'imagem' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 

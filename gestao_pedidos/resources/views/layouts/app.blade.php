@@ -38,6 +38,12 @@
                                 <a class="nav-link" href="{{ route('usuarios.index') }}">Usuários</a>
                             </li>
                             <li class="nav-item">
+                                <a class="nav-link" href="{{ route('funcionarios.index') }}">Funcionários</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('categorias.index') }}">Categorias</a>
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link" href="{{ route('relatorios.index') }}">Relatórios</a>
                             </li>
                         @else

@@ -38,6 +38,13 @@
                     </div>
                 @endif
 
+                @if($produto->categoria)
+                    <div class="mb-3">
+                        <h5>Categoria</h5>
+                        <span class="badge bg-info">{{ $produto->categoria->nome }}</span>
+                    </div>
+                @endif
+
                 @if($produto->estoque)
                     <div class="mb-3">
                         <h5>Estoque Disponível</h5>

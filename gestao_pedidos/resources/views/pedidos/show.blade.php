@@ -43,7 +43,7 @@
         </div>
     </div>
     <div class="col-md-4">
-        <div class="card">
+        <div class="card mb-3">
             <div class="card-header">
                 <h5>Informações do Pedido</h5>
             </div>
@@ -63,6 +63,78 @@
                 </p>
             </div>
         </div>
+
+        @if(Auth::user()->isAdmin())
+        <!-- Funcionários do Pedido -->
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-briefcase"></i> Funcionários</h5>
+            </div>
+            <div class="card-body">
+                @if($pedido->funcionarios->count() > 0)
+                    <ul class="list-group list-group-flush">
+                        @foreach($pedido->funcionarios as $funcionario)
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>{{ $funcionario->nome }}</strong><br>
+                                    <small class="text-muted">
+                                        <span class="badge bg-info">{{ $funcionario->pivot->funcao ?? 'Geral' }}</span>
+                                    </small>
+                                </div>
+                                <form action="{{ route('pedidos.remover-funcionario', [$pedido, $funcionario]) }}" 
+                                      method="POST" 
+                                      class="d-inline"
+                                      onsubmit="return confirm('Remover este funcionário?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        <i class="bi bi-x"></i>
+                                    </button>
+                                </form>
+                            </li>
+                        @endforeach
+                    </ul>
+                @else
+                    <p class="text-muted">Nenhum funcionário associado.</p>
+                @endif
+
+                <hr>
+                <h6 class="mb-3">Adicionar Funcionário</h6>
+                <form action="{{ route('pedidos.associar-funcionario', $pedido) }}" method="POST">
+                    @csrf
+                    <div class="mb-2">
+                        <select name="funcionario_id" 
+                                class="form-select form-select-sm @error('funcionario_id') is-invalid @enderror" 
+                                required>
+                            <option value="">Selecione um funcionário</option>
+                            @foreach($funcionarios as $funcionario)
+                                @if(!$pedido->funcionarios->contains($funcionario->id))
+                                    <option value="{{ $funcionario->id }}">{{ $funcionario->nome }}</option>
+                                @endif
+                            @endforeach
+                        </select>
+                        @error('funcionario_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="mb-2">
+                        <input type="text" 
+                               name="funcao" 
+                               class="form-control form-control-sm @error('funcao') is-invalid @enderror" 
+                               placeholder="Função (Ex: Preparador, Entregador)" 
+                               value="{{ old('funcao') }}"
+                               required>
+                        @error('funcao')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <button type="submit" class="btn btn-sm btn-primary w-100">
+                        <i class="bi bi-plus-circle"></i> Adicionar
+                    </button>
+                </form>
+            </div>
+        </div>
+        @endif
     </div>
 </div>
 

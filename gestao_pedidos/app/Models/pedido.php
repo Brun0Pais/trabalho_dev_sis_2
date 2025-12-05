@@ -40,4 +40,17 @@ class Pedido extends Model
     {
         return $this->itensPedido->sum('subtotal');
     }
+    public function produtos()
+    {
+        return $this->belongsToMany(Produto::class, 'itens_pedido')
+            ->withPivot(['quantidade', 'valor_unitario', 'subtotal']);
+    }
+
+    public function funcionarios()
+    {
+        return $this->belongsToMany(Funcionario::class, 'funcionarios_pedidos')
+            ->withPivot('funcao')
+            ->withTimestamps();
+    }
 }
+

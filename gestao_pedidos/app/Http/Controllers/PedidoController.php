@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Pedido;
 use App\Models\ItemPedido;
 use App\Models\Produto;
+use App\Models\Funcionario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -124,14 +125,16 @@ class PedidoController extends Controller
             abort(403);
         }
 
-        $pedido->load(['usuario', 'itensPedido.produto']);
-        return view('pedidos.show', compact('pedido'));
+        $pedido->load(['usuario', 'itensPedido.produto', 'funcionarios']);
+        $funcionarios = Funcionario::where('ativo', true)->orderBy('nome')->get();
+        return view('pedidos.show', compact('pedido', 'funcionarios'));
     }
 
     public function edit(Pedido $pedido)
     {
-        $pedido->load(['usuario', 'itensPedido.produto']);
-        return view('pedidos.edit', compact('pedido'));
+        $pedido->load(['usuario', 'itensPedido.produto', 'funcionarios']);
+        $funcionarios = Funcionario::where('ativo', true)->orderBy('nome')->get();
+        return view('pedidos.edit', compact('pedido', 'funcionarios'));
     }
 
     public function update(Request $request, Pedido $pedido)
@@ -154,5 +157,44 @@ class PedidoController extends Controller
         $pedido->delete();
         return redirect()->route('pedidos.index')
             ->with('success', 'Pedido excluído com sucesso!');
+    }
+
+    public function associarFuncionario(Request $request, Pedido $pedido)
+    {
+        $validated = $request->validate([
+            'funcionario_id' => 'required|exists:funcionarios,id',
+            'funcao' => 'required|string|max:255',
+        ]);
+
+        // Verificar se já não está associado
+        if ($pedido->funcionarios()->where('funcionario_id', $validated['funcionario_id'])->exists()) {
+            return back()->with('error', 'Este funcionário já está associado a este pedido!');
+        }
+
+        $pedido->funcionarios()->attach($validated['funcionario_id'], [
+            'funcao' => $validated['funcao']
+        ]);
+
+        return back()->with('success', 'Funcionário associado ao pedido com sucesso!');
+    }
+
+    public function atualizarFuncaoFuncionario(Request $request, Pedido $pedido, Funcionario $funcionario)
+    {
+        $validated = $request->validate([
+            'funcao' => 'required|string|max:255',
+        ]);
+
+        $pedido->funcionarios()->updateExistingPivot($funcionario->id, [
+            'funcao' => $validated['funcao']
+        ]);
+
+        return back()->with('success', 'Função do funcionário atualizada com sucesso!');
+    }
+
+    public function removerFuncionario(Pedido $pedido, Funcionario $funcionario)
+    {
+        $pedido->funcionarios()->detach($funcionario->id);
+
+        return back()->with('success', 'Funcionário removido do pedido com sucesso!');
     }
 }

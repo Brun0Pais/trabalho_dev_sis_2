@@ -65,6 +65,23 @@
                     </div>
 
                     <div class="mb-3">
+                        <label for="categoria_id" class="form-label">Categoria</label>
+                        <select class="form-select @error('categoria_id') is-invalid @enderror" 
+                                id="categoria_id" 
+                                name="categoria_id">
+                            <option value="">Selecione uma categoria</option>
+                            @foreach($categorias as $categoria)
+                                <option value="{{ $categoria->id }}" {{ old('categoria_id') == $categoria->id ? 'selected' : '' }}>
+                                    {{ $categoria->nome }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('categoria_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="mb-3">
                         <label for="imagem" class="form-label">Imagem do Produto</label>
                         <input type="file" 
                                class="form-control @error('imagem') is-invalid @enderror" 
